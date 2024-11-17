@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -8,14 +9,27 @@ import Image from "next/image";
 
 export default function OrderCard({
   order,
-  setOrders,
-  showPopup, // This should be the current active order ID or null
-  setShowPopup, // Function to set the active order ID
-  setShowDeletePopup,
-  setShowCancelPopup,
+
+  showPopup,
+  setShowPopup,
   handleDelete,
   handleCancel,
 }) {
+  const popupRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (popupRef.current && !popupRef.current.contains(event.target)) {
+        setShowPopup(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [setShowPopup]);
+
   const handlePopupToggle = () => {
     setShowPopup((prev) => (prev === order.id ? null : order.id)); // Toggle popup only for the selected order
   };
@@ -60,7 +74,6 @@ export default function OrderCard({
             </SwiperSlide>
           </Swiper>
 
-          {/* Next & Previous Buttons */}
           <button
             className={`custom-swiper-button-prev-${order.id} absolute bottom-[10px] left-[10px] z-10`}
           >
@@ -89,7 +102,10 @@ export default function OrderCard({
             <h2 className="text-[18px] font-[600]">{order.location}</h2>
             <div className="flex gap-3 items-center">
               <span className="text-[18px] font-[600]">{order.amount}</span>
-              <button onClick={handlePopupToggle}>
+              <button
+                className="px-4 py-2 rounded-lg hover:bg-gray-100 "
+                onClick={handlePopupToggle}
+              >
                 <img
                   src="/Vector.png"
                   className="h-[20px] w-auto object-cover"
@@ -176,9 +192,11 @@ export default function OrderCard({
         </div>
       </div>
 
-      {/* Dropdown (Main Popup) */}
       {showPopup === order.id && (
-        <div className="absolute bg-white border rounded-lg text-[black]/70 shadow-lg p-3 mt-2 w-[200px] top-12 right-4">
+        <div
+          ref={popupRef}
+          className="absolute bg-white border rounded-lg text-[black]/70 shadow-lg p-3 mt-2 w-[200px] top-12 right-4"
+        >
           <div
             onClick={() => setShowPopup(order.id)}
             className="flex items-center gap-[12px] cursor-pointer py-2 px-4 hover:bg-gray-100"
@@ -186,7 +204,7 @@ export default function OrderCard({
             <img src="/info.svg" className="h-[20px] w-auto" />
             <span>View Details</span>
           </div>
-          {order.status === "Confirmed" && (
+          {order.status !== "Confirmed" && order.status !== "Cancelled" && (
             <>
               <div
                 onClick={() => handleDelete(order)} // Pass the order as an argument

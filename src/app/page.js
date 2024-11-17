@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import OrderCard from "./screens/orders";
 import DeletePopup from "./components/popups/delete";
 import CancelPopup from "./components/popups/cancel";
@@ -84,15 +84,11 @@ export default function Home() {
   const [showCancelPopup, setShowCancelPopup] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
-  useEffect(() => {
-    // Sort orders by city and date when the component mounts or when the orders change
-    setOrders(
-      (prevOrders) =>
-        prevOrders
-          .sort((a, b) => a.city.localeCompare(b.city)) // Sort by city
-          .sort((a, b) => new Date(a.date) - new Date(b.date)) // Sort by date within each city
-    );
-  }, []);
+  const sortedOrders = useMemo(() => {
+    return [...orders]
+      .sort((a, b) => a.city.localeCompare(b.city)) 
+      .sort((a, b) => new Date(a.date) - new Date(b.date)); 
+  }, [orders]);
 
   const handleDelete = (order) => {
     setSelectedOrder(order);
@@ -128,24 +124,24 @@ export default function Home() {
     setSelectedOrder(null);
   };
 
-  // Group orders by city
-  const groupedOrders = orders.reduce((acc, order) => {
-    if (!acc[order.city]) {
-      acc[order.city] = [];
-    }
-    acc[order.city].push(order);
-    return acc;
-  }, {});
+  const groupedOrders = useMemo(() => {
+    return sortedOrders.reduce((acc, order) => {
+      if (!acc[order.city]) {
+        acc[order.city] = [];
+      }
+      acc[order.city].push(order);
+      return acc;
+    }, {});
+  }, [sortedOrders]);
 
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-3xl font-bold mb-6">Orders</h1>
 
-      {/* Loop through grouped orders by city */}
       {Object.keys(groupedOrders).map((city) => (
         <div key={city}>
           <h2 className="text-2xl font-semibold mt-8 mb-4">
-            {city} - {/* Display the earliest date in the group */}
+            {city} -{" "}
             {new Date(groupedOrders[city][0].date).toLocaleDateString()}
           </h2>
           <div className="space-y-6">
@@ -163,7 +159,6 @@ export default function Home() {
         </div>
       ))}
 
-      {/* Delete Popup */}
       {showDeletePopup && selectedOrder && (
         <DeletePopup
           handleClosePopup={handleClosePopup}
@@ -172,7 +167,6 @@ export default function Home() {
         />
       )}
 
-      {/* Cancel Popup */}
       {showCancelPopup && selectedOrder && (
         <CancelPopup
           handleClosePopup={handleClosePopup}
