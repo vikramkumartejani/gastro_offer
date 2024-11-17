@@ -1,22 +1,27 @@
-export default function CancelPopup({ handleClosePopup, selectedOrder, setShowCancelPopup }) {
-    return (
-      <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-        <div className="bg-white p-6 rounded-lg">
-          <h3 className="text-xl font-bold mb-4">Cancel?</h3>
-          <p>Are you sure to cancel your order?</p>
-          <div className="flex gap-4 mt-4">
-            <button onClick={handleClosePopup} className="px-4 py-2 bg-gray-400 text-white rounded-md">
-              NO
-            </button>
-            <button onClick={() => {
-              // Handle cancel action here
-              setShowCancelPopup(false);
-            }} className="px-4 py-2 bg-yellow-600 text-white rounded-md">
-              YES
-            </button>
-          </div>
+"use client";
+export default function CancelPopup({ handleClosePopup, confirmCancel }) {
+  return (
+    <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
+      <div className="bg-white max-w-[350px] p-4 rounded-lg">
+        <h3 className="text-[20px] font-bold mb-4">Cancel?</h3>
+        <p className="text-[16px]">
+          Are you sure you want to cancel this order?
+        </p>
+        <div className="flex justify-end gap-4 mt-4">
+          <button
+            onClick={handleClosePopup}
+            className="px-6 py-2 uppercase bg-[#CCCCCC] rounded-md"
+          >
+            NO
+          </button>
+          <button
+            onClick={confirmCancel}
+            className="px-6 py-2 uppercase bg-[#D32F2F] text-white rounded-md"
+          >
+            YES
+          </button>
         </div>
       </div>
-    );
-  }
-  
+    </div>
+  );
+}
