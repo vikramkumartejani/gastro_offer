@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
+import { Box, Container, Typography } from "@mui/material";
 import OrderCard from "./screens/orders";
 import DeletePopup from "./components/popups/delete";
 import CancelPopup from "./components/popups/cancel";
@@ -79,16 +80,26 @@ const initialOrders = [
 
 export default function Home() {
   const [orders, setOrders] = useState(initialOrders);
-  const [showPopup, setShowPopup] = useState(false);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [showCancelPopup, setShowCancelPopup] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showPopup, setShowPopup] = useState(null);
 
   const sortedOrders = useMemo(() => {
     return [...orders]
-      .sort((a, b) => a.city.localeCompare(b.city)) 
-      .sort((a, b) => new Date(a.date) - new Date(b.date)); 
+      .sort((a, b) => a.city.localeCompare(b.city))
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
   }, [orders]);
+
+  const groupedOrders = useMemo(() => {
+    return sortedOrders.reduce((acc, order) => {
+      if (!acc[order.city]) {
+        acc[order.city] = [];
+      }
+      acc[order.city].push(order);
+      return acc;
+    }, {});
+  }, [sortedOrders]);
 
   const handleDelete = (order) => {
     setSelectedOrder(order);
@@ -124,27 +135,19 @@ export default function Home() {
     setSelectedOrder(null);
   };
 
-  const groupedOrders = useMemo(() => {
-    return sortedOrders.reduce((acc, order) => {
-      if (!acc[order.city]) {
-        acc[order.city] = [];
-      }
-      acc[order.city].push(order);
-      return acc;
-    }, {});
-  }, [sortedOrders]);
-
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">Orders</h1>
+    <Container sx={{ py: 4 }}>
+      <Typography variant="h3" sx={{ fontWeight: "bold", mb: 4 }}>
+        Orders
+      </Typography>
 
       {Object.keys(groupedOrders).map((city) => (
-        <div key={city}>
-          <h2 className="text-2xl font-semibold mt-8 mb-4">
+        <Box key={city} sx={{ mb: 4 }}>
+          <Typography variant="h5" sx={{ fontWeight: "bold", mt: 4, mb: 2 }}>
             {city} -{" "}
             {new Date(groupedOrders[city][0].date).toLocaleDateString()}
-          </h2>
-          <div className="space-y-6">
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {groupedOrders[city].map((order) => (
               <OrderCard
                 key={order.id}
@@ -155,15 +158,14 @@ export default function Home() {
                 handleCancel={handleCancel}
               />
             ))}
-          </div>
-        </div>
+          </Box>
+        </Box>
       ))}
 
       {showDeletePopup && selectedOrder && (
         <DeletePopup
           handleClosePopup={handleClosePopup}
           confirmDelete={confirmDelete}
-          selectedOrder={selectedOrder}
         />
       )}
 
@@ -171,9 +173,8 @@ export default function Home() {
         <CancelPopup
           handleClosePopup={handleClosePopup}
           confirmCancel={confirmCancel}
-          selectedOrder={selectedOrder}
         />
       )}
-    </div>
+    </Container>
   );
 }

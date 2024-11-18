@@ -1,27 +1,68 @@
 "use client";
+import { Box, Typography, Button, Modal } from "@mui/material";
+
 export default function CancelPopup({ handleClosePopup, confirmCancel }) {
   return (
-    <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-      <div className="bg-white max-w-[350px] p-4 rounded-lg">
-        <h3 className="text-[20px] font-bold mb-4">Cancel?</h3>
-        <p className="text-[16px]">
+    <Modal open={true} onClose={handleClosePopup}>
+      <Box
+        sx={{
+          position: "fixed",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          bgcolor: "white",
+          maxWidth: "350px",
+          p: 4,
+          borderRadius: "8px",
+          boxShadow: 24,
+        }}
+      >
+        <Typography
+          variant="h6"
+          component="h3"
+          sx={{ fontSize: "20px", fontWeight: "bold", mb: 1 }}
+        >
+          Cancel?
+        </Typography>
+        <Typography variant="body1" sx={{ fontSize: "16px" }}>
           Are you sure you want to cancel this order?
-        </p>
-        <div className="flex justify-end gap-4 mt-4">
-          <button
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "end",
+            gap: 2,
+            mt: 4,
+          }}
+        >
+          <Button
             onClick={handleClosePopup}
-            className="px-6 py-2 uppercase bg-[#CCCCCC] rounded-md"
+            sx={{
+              px: 3,
+              py: 1,
+              color: "black",
+              textTransform: "uppercase",
+              bgcolor: "#CCCCCC",
+              borderRadius: "4px",
+            }}
           >
             NO
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={confirmCancel}
-            className="px-6 py-2 uppercase bg-[#D32F2F] text-white rounded-md"
+            sx={{
+              px: 3,
+              py: 1,
+              textTransform: "uppercase",
+              bgcolor: "#D32F2F",
+              color: "white",
+              borderRadius: "4px",
+            }}
           >
             YES
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
   );
 }
