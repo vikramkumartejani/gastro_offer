@@ -17,7 +17,7 @@ import {
 
 export default function OrderCard({
   order,
-  showPopup,
+
   setShowPopup,
   handleDelete,
   handleCancel,
